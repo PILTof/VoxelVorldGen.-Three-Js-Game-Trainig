@@ -3,9 +3,16 @@
  */
 export default class ObjectProperty {
 
+    /**
+     * 
+     * @param {String} key 
+     * @param {*} value 
+     * @returns {ObjectProperty}
+     */
     setValue(key, value) {
         if (typeof this.params[key] == "undefined") throw new Error(`Param ${key} not found`);
         this.params[key] = value;
+        return this;
     }
     fillValues(params) {
         for (const key in params) {
@@ -14,6 +21,7 @@ export default class ObjectProperty {
                 this.params[key] = value;
             }
         }
+        return this;
     }
 
     getValue(key) {

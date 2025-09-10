@@ -13,6 +13,7 @@ import { OrbitControls, SimplexNoise } from "three/examples/jsm/Addons.js";
 import { degToRad } from "three/src/math/MathUtils.js";
 import SimpleGen from "./worldgen/SimpleGen";
 import GrassMaterialsFactory from "./factories/blocks/GrassMaterialsFactory";
+import ChunkDebugger from "./utils/ChunkDebugger";
 
 
 export default async function () {
@@ -45,6 +46,7 @@ export default async function () {
    
     SimpleGen(scene, chunkScale);
 
+    // ChunkDebugger(renderer, camera, scene);
 
     function animate() {
         //   cube.rotation.x += 0.01;

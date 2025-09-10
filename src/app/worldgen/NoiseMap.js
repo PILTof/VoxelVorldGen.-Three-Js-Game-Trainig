@@ -1,9 +1,6 @@
 import { Vector2 } from "three";
 import { FBM, Perlin } from "three-noise";
-import { SimplexNoise } from "three/examples/jsm/Addons.js";
 import { randInt } from "three/src/math/MathUtils.js";
-import { log } from "three/tsl";
-import Voronoi from "voronoi";
 import NoiseGenProperty from "./types/NoiseGenProperty";
 
 export default class NoiseMap {
@@ -12,8 +9,9 @@ export default class NoiseMap {
     width = this.scale;
     offsetX = 0;
     offsetZ = 0;
-    multiplyerWht = 20 / 2;
-    multiplyerPerl = 15;
+    // multiplyerWht = 16;
+    multiplyerPerl = 4;
+    multiplyerNoiseSelect = 1;
     /**
      * @type {Perlin}
      */
@@ -35,14 +33,25 @@ export default class NoiseMap {
         return result;
     }
 
-    constructor(offsetX = 0, offsetY = 0) {
+    constructor(offsetX = 0, offsetY = 0, seed, mltSeed) {
         this.offsetX = offsetX;
         this.offsetZ = offsetY;
-        let seed = 1232122323;
         this.perlinGen = new Perlin(seed);
         this.whiteGen = new FBM({
             seed: seed,
         });
+        this.whiteMultiplyerGen = new FBM({
+            seed: mltSeed
+        })
+    }
+
+    mltWhiteNoise(nx, ny) {
+        let velocity = this.whiteMultiplyerGen.get2(
+            new Vector2(nx, ny),
+            new Vector2(nx, ny)
+        );
+        let height = velocity;
+        return height * 100;
     }
 
     perl(nx, ny) {
@@ -69,42 +78,78 @@ export default class NoiseMap {
         this.offsetX = x;
         this.offsetZ = z;
     }
-    generate(
-        params = new NoiseGenProperty
-    ) {
+    /**
+     * Генерирует чанк через три карты шума:
+     * отноешние карты шума перлинга(1) к (карта шума(2) с мультплаеров зависящим от независимой карты шума(3))
+     * @param {NoiseGenProperty} params 
+     * @returns 
+     */
+    generate(params = new NoiseGenProperty()) {
         let noiseCord = (cord, side, mlt) => {
             return (cord / side) * mlt + 10;
         };
         let map = [];
-        for (let z = 0; z < params.getValue('chunkScale'); z++) {
+        for (
+            let z = 0;
+            z < params.getValue(NoiseGenProperty.CHUNK_SCALE);
+            z++
+        ) {
             map[z] = [];
-            for (let x = 0; x < params.getValue('chunkScale'); x++) {
+            for (
+                let x = 0;
+                x < params.getValue(NoiseGenProperty.CHUNK_SCALE);
+                x++
+            ) {
+
+
+                let nxxx = noiseCord(
+                        x + params.getValue(NoiseGenProperty.OFFSET_X),
+                        this.width,
+                        this.multiplyerNoiseSelect
+                    ),
+                    nyyy = noiseCord(
+                        z + params.getValue(NoiseGenProperty.OFFSET_Z),
+                        this.height,
+                        this.multiplyerNoiseSelect
+                    );
+
+                
+                let whiteNoiseMultiplyer = this.mltWhiteNoise(nxxx, nyyy);
+
+
                 let nxx = noiseCord(
-                        x + params.getValue('offsetX'),
+                        x + params.getValue(NoiseGenProperty.OFFSET_X),
                         this.width,
                         this.multiplyerPerl
                     ),
                     nyy = noiseCord(
-                        z + params.getValue('offsetZ'),
+                        z + params.getValue(NoiseGenProperty.OFFSET_Z),
                         this.height,
                         this.multiplyerPerl
                     );
 
                 let nx = noiseCord(
-                        x + params.getValue('offsetX'),
+                        x + params.getValue(NoiseGenProperty.OFFSET_X),
                         this.width,
-                        this.multiplyerWht
+                        whiteNoiseMultiplyer
                     ),
                     ny = noiseCord(
-                        z + params.getValue('offsetZ'),
+                        z + params.getValue(NoiseGenProperty.OFFSET_Z),
                         this.height,
-                        this.multiplyerWht
+                        whiteNoiseMultiplyer
                     );
+                    
+
 
                 let val =
                     (this.perl(nxx, nyy) / this.wht(nx, ny)) *
-                        (Math.log(params.getValue('heightFunc')) * params.getValue('fullHeight')) -
-                    params.getValue('heightOffset');
+                        Math.E *
+                        (Math.log(
+                            params.getValue(NoiseGenProperty.HEIGHT_FUNC)
+                        ) *
+                            params.getValue(NoiseGenProperty.HEIGHT_POSITION)) -
+                    params.getValue(NoiseGenProperty.HEIGHT_OFFSET);
+
                 map[z][x] = Math.floor(val * 10);
             }
         }

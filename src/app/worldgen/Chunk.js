@@ -24,6 +24,9 @@ class Chunk {
     tileTextureWidth = 256;
     tileTextureHeight = 64;
 
+    /**
+     * @type {ChunkGeometry}
+     */
     world = null;
     /**
      * @type {NoiseMap}
@@ -31,7 +34,7 @@ class Chunk {
     noiseMap = null;
     heightMap = [];
 
-    constructor(cellSize) {
+    constructor(cellSize, seed) {
         let loader = new TextureLoader();
 
         this.cellSize = cellSize;
@@ -42,13 +45,14 @@ class Chunk {
         this.texture.minFilter = NearestFilter;
         this.texture.colorSpace = SRGBColorSpace;
 
-        this.noiseMap = new NoiseMap(0, 0);
+        this.noiseMap = new NoiseMap(0, 0, seed);
 
         this.world = new ChunkGeometry({
             cellSize: this.cellSize,
             tileSize: this.tileSize,
             tileTextureWidth: this.tileTextureWidth,
             tileTextureHeight: this.tileTextureHeight,
+            maxHeight: 256
         });
     }
 
@@ -62,7 +66,14 @@ class Chunk {
                     for (const x in heights) {
                         if (Object.prototype.hasOwnProperty.call(heights, x)) {
                             const y = heights[x];
-                            this.world.setVoxel(x, y, z, y);
+                            if ( y > 1) {
+                                for (let yy = y; yy > 0; yy--) {
+                                    this.world.setVoxel(x, yy, z, y);
+                                }
+                            } else {
+                                this.world.setVoxel(x, y, z, y);
+
+                            }
                         }
                     }
                 }

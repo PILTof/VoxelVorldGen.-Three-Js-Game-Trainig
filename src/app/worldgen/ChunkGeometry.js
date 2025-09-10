@@ -2,25 +2,26 @@ import * as THREE from "three";
 
 export default class ChunkGeometry {
     constructor(options) {
+        this.maxHeight = options.maxHeight;
         this.cellSize = options.cellSize;
         this.tileSize = options.tileSize;
         this.tileTextureWidth = options.tileTextureWidth;
         this.tileTextureHeight = options.tileTextureHeight;
         const { cellSize } = this;
         this.cellSliceSize = cellSize * cellSize;
-        this.cell = new Uint8Array(cellSize * cellSize * cellSize);
+        this.cell = new Uint8Array(cellSize * this.maxHeight * cellSize);
     }
     computeVoxelOffset(x, y, z) {
         const { cellSize, cellSliceSize } = this;
         const voxelX = THREE.MathUtils.euclideanModulo(x, cellSize) | 0;
-        const voxelY = THREE.MathUtils.euclideanModulo(y, cellSize) | 0;
+        const voxelY = THREE.MathUtils.euclideanModulo(y, this.maxHeight) | 0;
         const voxelZ = THREE.MathUtils.euclideanModulo(z, cellSize) | 0;
         return voxelY * cellSliceSize + voxelZ * cellSize + voxelX;
     }
     getCellForVoxel(x, y, z) {
         const { cellSize } = this;
         const cellX = Math.floor(x / cellSize);
-        const cellY = Math.floor(y / cellSize);
+        const cellY = Math.floor(y / this.maxHeight);
         const cellZ = Math.floor(z / cellSize);
         if (cellX !== 0 || cellY !== 0 || cellZ !== 0) {
             return null;
@@ -57,7 +58,7 @@ export default class ChunkGeometry {
         const startY = cellY * cellSize;
         const startZ = cellZ * cellSize;
 
-        for (let y = 0; y < cellSize; ++y) {
+        for (let y = 0; y < this.maxHeight; ++y) {
             const voxelY = startY + y;
             for (let z = 0; z < cellSize; ++z) {
                 const voxelZ = startZ + z;
@@ -89,9 +90,10 @@ export default class ChunkGeometry {
                                         pos[2] + z
                                     );
                                     normals.push(...dir);
+                                    let uvx = ((uvVoxel + uv[0]) * tileSize) /
+                                            tileTextureWidth;
                                     uvs.push(
-                                        ((uvVoxel + uv[0]) * tileSize) /
-                                            tileTextureWidth,
+                                        uvx,
                                         1 -
                                             ((uvRow + 1 - uv[1]) * tileSize) /
                                                 tileTextureHeight
