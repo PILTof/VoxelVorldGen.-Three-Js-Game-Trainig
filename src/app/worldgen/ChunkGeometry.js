@@ -1,6 +1,6 @@
 import * as THREE from "three";
 
-export default class VoxelWorld {
+export default class ChunkGeometry {
     constructor(options) {
         this.cellSize = options.cellSize;
         this.tileSize = options.tileSize;
@@ -73,7 +73,7 @@ export default class VoxelWorld {
                             dir,
                             corners,
                             uvRow,
-                        } of VoxelWorld.faces) {
+                        } of ChunkGeometry.faces) {
                             const neighbor = this.getVoxel(
                                 voxelX + dir[0],
                                 voxelY + dir[1],
@@ -122,7 +122,7 @@ export default class VoxelWorld {
     }
 }
 
-VoxelWorld.faces = [
+ChunkGeometry.faces = [
     {
         // left
         uvRow: 0,

@@ -9,9 +9,10 @@ import {
     Texture,
     TextureLoader,
 } from "three";
-import VoxelWorld from "./VoxelWorld";
+import ChunkGeometry from "./ChunkGeometry";
 import NoiseMap from "./NoiseMap";
 import { SimplexNoise } from "three/examples/jsm/Addons.js";
+import NoiseGenProperty from "./types/NoiseGenProperty";
 
 class Chunk {
     /**
@@ -41,9 +42,9 @@ class Chunk {
         this.texture.minFilter = NearestFilter;
         this.texture.colorSpace = SRGBColorSpace;
 
-        this.noiseMap = new NoiseMap(0, 0)
+        this.noiseMap = new NoiseMap(0, 0);
 
-        this.world = new VoxelWorld({
+        this.world = new ChunkGeometry({
             cellSize: this.cellSize,
             tileSize: this.tileSize,
             tileTextureWidth: this.tileTextureWidth,
@@ -51,11 +52,10 @@ class Chunk {
         });
     }
 
-    generate() {
+    generate(p ) {
         return new Promise((resolve, reject) => {
+            this.heightMap = this.noiseMap.generate(p);
 
-            this.heightMap = this.noiseMap.generate();
-            
             for (const z in this.heightMap) {
                 if (Object.prototype.hasOwnProperty.call(this.heightMap, z)) {
                     const heights = this.heightMap[z];

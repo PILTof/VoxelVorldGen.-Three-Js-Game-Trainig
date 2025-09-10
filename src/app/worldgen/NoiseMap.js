@@ -4,15 +4,16 @@ import { SimplexNoise } from "three/examples/jsm/Addons.js";
 import { randInt } from "three/src/math/MathUtils.js";
 import { log } from "three/tsl";
 import Voronoi from "voronoi";
+import NoiseGenProperty from "./types/NoiseGenProperty";
 
 export default class NoiseMap {
-    scale = 0;
+    scale = 1500;
     height = this.scale;
     width = this.scale;
     offsetX = 0;
     offsetZ = 0;
-    multiplyerWht = 20;
-    multiplyerPerl = 7;
+    multiplyerWht = 20 / 2;
+    multiplyerPerl = 15;
     /**
      * @type {Perlin}
      */
@@ -34,13 +35,10 @@ export default class NoiseMap {
         return result;
     }
 
-    constructor(offsetX = 0, offsetY = 0, scale = 400) {
+    constructor(offsetX = 0, offsetY = 0) {
         this.offsetX = offsetX;
         this.offsetZ = offsetY;
-        this.scale = scale;
-        this.height = scale;
-        this.width = scale;
-        let seed = 12321323;
+        let seed = 1232122323;
         this.perlinGen = new Perlin(seed);
         this.whiteGen = new FBM({
             seed: seed,
@@ -71,20 +69,43 @@ export default class NoiseMap {
         this.offsetX = x;
         this.offsetZ = z;
     }
-
-    generate() {
+    generate(
+        params = new NoiseGenProperty
+    ) {
+        let noiseCord = (cord, side, mlt) => {
+            return (cord / side) * mlt + 10;
+        };
         let map = [];
-        for (let z = 0; z < this.height; z++) {
+        for (let z = 0; z < params.getValue('chunkScale'); z++) {
             map[z] = [];
-            for (let x = 0; x < this.width; x++) {
-                let nxx = (x / this.width) * this.multiplyerPerl - 0.5,
-                    nyy = (z / this.height) * this.multiplyerPerl - 0.5;
+            for (let x = 0; x < params.getValue('chunkScale'); x++) {
+                let nxx = noiseCord(
+                        x + params.getValue('offsetX'),
+                        this.width,
+                        this.multiplyerPerl
+                    ),
+                    nyy = noiseCord(
+                        z + params.getValue('offsetZ'),
+                        this.height,
+                        this.multiplyerPerl
+                    );
 
-                let nx = (x / this.width) * this.multiplyerWht,
-                    ny = (z / this.height) * this.multiplyerWht;
+                let nx = noiseCord(
+                        x + params.getValue('offsetX'),
+                        this.width,
+                        this.multiplyerWht
+                    ),
+                    ny = noiseCord(
+                        z + params.getValue('offsetZ'),
+                        this.height,
+                        this.multiplyerWht
+                    );
 
-                let val = this.perl(nxx, nyy) / this.wht(nx, ny);
-                map[z][x] = Math.round(val * 10);
+                let val =
+                    (this.perl(nxx, nyy) / this.wht(nx, ny)) *
+                        (Math.log(params.getValue('heightFunc')) * params.getValue('fullHeight')) -
+                    params.getValue('heightOffset');
+                map[z][x] = Math.floor(val * 10);
             }
         }
         return map;
