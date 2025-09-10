@@ -30,7 +30,7 @@ export default async function () {
     renderer.setAnimationLoop(animate);
     document.body.appendChild(renderer.domElement);
 
-    let chunkScale = 50;
+    let chunkScale = 16;
 
     camera.position.z = chunkScale + 100;
     camera.position.y = chunkScale / 2;
