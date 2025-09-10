@@ -1,0 +1,11 @@
+{
+  "dependencies": {
+    "lil-gui": "^0.20.0",
+    "oimo": "^1.0.9",
+    "simplex-noise": "^4.0.3",
+    "three": "^0.180.0",
+    "three-noise": "^1.1.2",
+    "tween": "^0.9.0",
+    "voronoi": "^1.0.0"
+  }
+}
