@@ -1,194 +1,101 @@
-import * as THREE from "three";
+import {
+    BufferAttribute,
+    BufferGeometry, NearestFilter,
+    SRGBColorSpace,
+    Texture
+} from "three";
+import ChunkGeometryData from "./ChunkGeometryData";
+import NoiseMap from "./NoiseMap";
+import NoiseGenProperty from "./types/NoiseGenProperty";
 
-export default class ChunkGeometry {
-    constructor(options) {
-        this.maxHeight = options.maxHeight;
-        this.cellSize = options.cellSize;
-        this.tileSize = options.tileSize;
-        this.tileTextureWidth = options.tileTextureWidth;
-        this.tileTextureHeight = options.tileTextureHeight;
-        const { cellSize } = this;
-        this.cellSliceSize = cellSize * cellSize;
-        this.cell = new Uint8Array(cellSize * this.maxHeight * cellSize);
-    }
-    computeVoxelOffset(x, y, z) {
-        const { cellSize, cellSliceSize } = this;
-        const voxelX = THREE.MathUtils.euclideanModulo(x, cellSize) | 0;
-        const voxelY = THREE.MathUtils.euclideanModulo(y, this.maxHeight) | 0;
-        const voxelZ = THREE.MathUtils.euclideanModulo(z, cellSize) | 0;
-        return voxelY * cellSliceSize + voxelZ * cellSize + voxelX;
-    }
-    getCellForVoxel(x, y, z) {
-        const { cellSize } = this;
-        const cellX = Math.floor(x / cellSize);
-        const cellY = Math.floor(y / this.maxHeight);
-        const cellZ = Math.floor(z / cellSize);
-        if (cellX !== 0 || cellY !== 0 || cellZ !== 0) {
-            return null;
-        }
+class ChunkGeometery {
+    /**
+     * @type {Texture}
+     */
+    texture = null;
 
-        return this.cell;
-    }
-    setVoxel(x, y, z, v) {
-        const cell = this.getCellForVoxel(x, y, z);
-        if (!cell) {
-            return; // TODO: add a new cell?
-        }
+    tileSize = 16;
 
-        const voxelOffset = this.computeVoxelOffset(x, y, z);
-        cell[voxelOffset] = v;
-    }
-    getVoxel(x, y, z) {
-        const cell = this.getCellForVoxel(x, y, z);
-        if (!cell) {
-            return 0;
-        }
+    /**
+     * @type {ChunkGeometryData}
+     */
+    chunkGeometryData = null;
+    /**
+     * @type {NoiseMap}
+     */
+    noiseMap = null;
+    heightMap = [];
 
-        const voxelOffset = this.computeVoxelOffset(x, y, z);
-        return cell[voxelOffset];
-    }
-    generateGeometryDataForCell(cellX, cellY, cellZ) {
-        const { cellSize, tileSize, tileTextureWidth, tileTextureHeight } =
-            this;
-        const positions = [];
-        const normals = [];
-        const uvs = [];
-        const indices = [];
-        const startX = cellX * cellSize;
-        const startY = cellY * cellSize;
-        const startZ = cellZ * cellSize;
+    constructor() {}
+    
 
-        for (let y = 0; y < this.maxHeight; ++y) {
-            const voxelY = startY + y;
-            for (let z = 0; z < cellSize; ++z) {
-                const voxelZ = startZ + z;
-                for (let x = 0; x < cellSize; ++x) {
-                    const voxelX = startX + x;
-                    const voxel = this.getVoxel(voxelX, voxelY, voxelZ);
-                    if (voxel) {
-                        // voxel 0 is sky (empty) so for UVs we start at 0
-                        const uvVoxel = voxel - 1;
-                        // There is a voxel here but do we need faces for it?
-                        let indexes = [];
-                        for (const {
-                            dir,
-                            corners,
-                            uvRow,
-                        } of ChunkGeometry.faces) {
-                            const neighbor = this.getVoxel(
-                                voxelX + dir[0],
-                                voxelY + dir[1],
-                                voxelZ + dir[2]
-                            );
-                            if (!neighbor) {
-                                // this voxel has no neighbor in this direction so we need a face.
-                                const ndx = positions.length / 3;
-                                for (const { pos, uv } of corners) {
-                                    positions.push(
-                                        pos[0] + x,
-                                        pos[1] + y,
-                                        pos[2] + z
-                                    );
-                                    normals.push(...dir);
-                                    let uvx = ((uvVoxel + uv[0]) * tileSize) /
-                                            tileTextureWidth;
-                                    uvs.push(
-                                        uvx,
-                                        1 -
-                                            ((uvRow + 1 - uv[1]) * tileSize) /
-                                                tileTextureHeight
-                                    );
+    async init(cellSize, seed, [tWidth, tHeight]) {
+        this.seed = seed;
+        this.cellSize = cellSize;
+
+        this.noiseMap = new NoiseMap(0, 0, seed);
+
+        this.chunkGeometryData = new ChunkGeometryData({
+            cellSize: this.cellSize,
+            tileSize: this.tileSize,
+            tileTextureWidth: tWidth,
+            tileTextureHeight: tHeight,
+            maxHeight: 256,
+            noiseSeed: seed,
+        });
+    }
+
+    /**
+     *
+     * @param {NoiseGenProperty} p
+     * @returns {BufferGeometry}
+     */
+    generate(p) {
+        return new Promise((resolve, reject) => {
+            this.heightMap = this.noiseMap.generate(p);
+            this.chunkGeometryData.setNoiseOffset(
+                p.getValue(NoiseGenProperty.OFFSET_X),
+                p.getValue(NoiseGenProperty.OFFSET_Z)
+            );
+
+            for (const z in this.heightMap) {
+                if (Object.prototype.hasOwnProperty.call(this.heightMap, z)) {
+                    const heights = this.heightMap[z];
+                    for (const x in heights) {
+                        if (Object.prototype.hasOwnProperty.call(heights, x)) {
+                            const y = heights[x];
+                            if (y > 1) {
+                                for (let yy = y; yy > 0; yy--) {
+                                    this.chunkGeometryData.setVoxel(x, yy, z, y);
                                 }
-
-                                indices.push(
-                                    ndx,
-                                    ndx + 1,
-                                    ndx + 2,
-                                    ndx + 2,
-                                    ndx + 1,
-                                    ndx + 3
-                                );
+                            } else {
+                                this.chunkGeometryData.setVoxel(x, y, z, y);
                             }
                         }
                     }
                 }
             }
-        }
+            const { positions, normals, uvs, indices } =
+                this.chunkGeometryData.generateGeometryDataForCell(0, 0, 0);
 
-        return {
-            positions,
-            normals,
-            uvs,
-            indices,
-        };
+            const geometry = new BufferGeometry();
+
+            geometry.setAttribute(
+                "position",
+                new BufferAttribute(new Float32Array(positions), 3)
+            );
+            geometry.setAttribute(
+                "normal",
+                new BufferAttribute(new Float32Array(normals), 3)
+            );
+            geometry.setAttribute(
+                "uv",
+                new BufferAttribute(new Float32Array(uvs), 2)
+            );
+            geometry.setIndex(indices);
+            resolve(geometry);
+        });
     }
 }
 
-ChunkGeometry.faces = [
-    {
-        // left
-        uvRow: 0,
-        dir: [-1, 0, 0],
-        corners: [
-            { pos: [0, 1, 0], uv: [0, 1] },
-            { pos: [0, 0, 0], uv: [0, 0] },
-            { pos: [0, 1, 1], uv: [1, 1] },
-            { pos: [0, 0, 1], uv: [1, 0] },
-        ],
-    },
-    {
-        // right
-        uvRow: 0,
-        dir: [1, 0, 0],
-        corners: [
-            { pos: [1, 1, 1], uv: [0, 1] },
-            { pos: [1, 0, 1], uv: [0, 0] },
-            { pos: [1, 1, 0], uv: [1, 1] },
-            { pos: [1, 0, 0], uv: [1, 0] },
-        ],
-    },
-    {
-        // bottom
-        uvRow: 1,
-        dir: [0, -1, 0],
-        corners: [
-            { pos: [1, 0, 1], uv: [1, 0] },
-            { pos: [0, 0, 1], uv: [0, 0] },
-            { pos: [1, 0, 0], uv: [1, 1] },
-            { pos: [0, 0, 0], uv: [0, 1] },
-        ],
-    },
-    {
-        // top
-        uvRow: 2,
-        dir: [0, 1, 0],
-        corners: [
-            { pos: [0, 1, 1], uv: [1, 1] },
-            { pos: [1, 1, 1], uv: [0, 1] },
-            { pos: [0, 1, 0], uv: [1, 0] },
-            { pos: [1, 1, 0], uv: [0, 0] },
-        ],
-    },
-    {
-        // back
-        uvRow: 0,
-        dir: [0, 0, -1],
-        corners: [
-            { pos: [1, 0, 0], uv: [0, 0] },
-            { pos: [0, 0, 0], uv: [1, 0] },
-            { pos: [1, 1, 0], uv: [0, 1] },
-            { pos: [0, 1, 0], uv: [1, 1] },
-        ],
-    },
-    {
-        // front
-        uvRow: 0,
-        dir: [0, 0, 1],
-        corners: [
-            { pos: [0, 0, 1], uv: [0, 0] },
-            { pos: [1, 0, 1], uv: [1, 0] },
-            { pos: [0, 1, 1], uv: [0, 1] },
-            { pos: [1, 1, 1], uv: [1, 1] },
-        ],
-    },
-];
+export default ChunkGeometery;
