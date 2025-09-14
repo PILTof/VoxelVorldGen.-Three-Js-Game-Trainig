@@ -20,9 +20,6 @@ export default class World extends Group {
 
     generate() {
         this.clear();
-        // let grassBlockInstance = BlockRegistries.GRASS;
-        // grassBlockInstance.count = 1;
-        // this.add(grassBlockInstance);
 
         const heightMapClass = new HeightMapClass(
             Math.random(),
@@ -30,7 +27,6 @@ export default class World extends Group {
             1500
         );
 
-        // // foreach5
         let chunk = new Chunk(
             heightMapClass,
             new HeightMapParams().fillValues({
@@ -51,12 +47,8 @@ export default class World extends Group {
                 z++
             ) {
                 chunk.generate(x * 16, z * 16);
-                
-                // chunk.position.x += x * 16;
-                // chunk.position.z += z * 16;
             }
         }
-                this.add(chunk);
-
+        this.add(chunk);
     }
 }
