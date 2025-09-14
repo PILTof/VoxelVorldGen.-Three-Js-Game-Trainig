@@ -1,4 +1,5 @@
 import {
+    AxesHelper,
     BoxGeometry,
     GridHelper,
     Group,
@@ -13,10 +14,12 @@ import {
     WebGLRenderer,
 } from "three";
 import { OrbitControls, SimplexNoise } from "three/examples/jsm/Addons.js";
-
+import World from "./worldgen/mesh/World";
+import WorldParams from "./worldgen/mesh/WorldParams";
+import BlockRegistries from "./worldgen/mesh/InstanceRegistry";
+import GUI from "lil-gui";
 
 export default async function () {
-
     // scene and camera
     const scene = new Scene();
     const camera = new PerspectiveCamera(
@@ -44,59 +47,49 @@ export default async function () {
         renderer.domElement.clientWidth / renderer.domElement.clientHeight;
     camera.updateProjectionMatrix();
 
-
     // grid
     let gridHelper = new GridHelper(16, 16);
     scene.add(gridHelper);
 
+    let axesHelper = new AxesHelper(10);
+    axesHelper.setColors("red", "yellow", "green");
+    scene.add(axesHelper);
 
+    let worldParams = new WorldParams().fillValues({
+        [WorldParams.GEN_RADIUS]: 5,
+    });
 
+    let world = new World(worldParams);
+    world.generate();
 
-
+    scene.add(world);
     // cube
-    let loader = new TextureLoader;
+    // let loader = new TextureLoader;
 
-    let matrix = new Matrix4;
+    // let matrix = new Matrix4;
 
-    let cubeGroup = new Group();
-    let cubeGeometery = new BoxGeometry(1, 1, 1);
-    let cubeMaterial = new MeshBasicMaterial({
-        map: await loader.loadAsync('/assets/images/textures/block/grass_block_side.png')
-    })
+    // let cubeGroup = new Group();
+    // let cubeGeometery = new BoxGeometry(1, 1, 1);
+    // let cubeMaterial = new MeshBasicMaterial({
+    //     map: await loader.loadAsync('/assets/images/textures/block/grass_block_side.png')
+    // })
 
-    let maxCunt = 2;
-    
+    // let maxCunt = 2;
 
-    let cubeInstance = new InstancedMesh(cubeGeometery, cubeMaterial, maxCunt);
-    cubeInstance.count = 0;
+    // let cubeInstance = new InstancedMesh(cubeGeometery, cubeMaterial, maxCunt);
+    // cubeInstance.count = 0;
 
-    matrix.setPosition(new Vector3(0.5, 0.5,0.5));
-    cubeInstance.setMatrixAt(0, matrix)
-    cubeInstance.count = 1;
+    // matrix.setPosition(new Vector3(0.5, 0.5,0.5));
+    // cubeInstance.setMatrixAt(0, matrix)
+    // cubeInstance.count = 1;
 
-    matrix.setPosition(new Vector3(1.5, 1.5, 1.5));
-    cubeInstance.setMatrixAt(1, matrix);
-    cubeInstance.count = 2;
+    // matrix.setPosition(new Vector3(1.5, 1.5, 1.5));
+    // cubeInstance.setMatrixAt(1, matrix);
+    // cubeInstance.count = 2;
 
+    // cubeGroup.add(cubeInstance);
 
-    cubeGroup.add(cubeInstance);
-
-    scene.add(cubeGroup);
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-    
+    // scene.add(cubeGroup);
 
     // ChunkDebugger(renderer, camera, scene);
 
