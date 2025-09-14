@@ -2,9 +2,9 @@ import { Group, Matrix4 } from "three";
 import BlockRegistries from "./InstanceRegistry";
 import HeightMapClass from "../noise/HeightMapClass";
 import HeightMapParams from "../noise/HeightMapParams";
+import BlockInstance from "../../ship/Abstract/BlockInstance";
 
 export default class Chunk extends Group {
-
     /**
      * @type {HeightMapClass}
      */
@@ -15,9 +15,9 @@ export default class Chunk extends Group {
     heightMapParams = {};
 
     /**
-     * 
-     * @param {HeightMapClass} heightMapClass 
-     * @param {HeightMapParams} heightMapParams 
+     *
+     * @param {HeightMapClass} heightMapClass
+     * @param {HeightMapParams} heightMapParams
      */
     constructor(heightMapClass, heightMapParams) {
         super();
@@ -25,45 +25,53 @@ export default class Chunk extends Group {
         this.heightMapParams = heightMapParams;
     }
 
+    /**
+     *
+     * @param {*} x
+     * @param {*} y
+     * @param {*} z
+     * @param {typeof BlockInstance} instance
+     */
+    setBlock(x, y, z, instance) {
+        let matrix = new Matrix4();
+        matrix.setPosition(x, y, z);
+        instance.setMatrixAt(instance.count, matrix);
+        instance.count++;
+        this.add(instance);
+    }
+
     generate(offsetX = 0, offsetZ = 0) {
-
-
-
         let heightMap = this.heightMapClass.generate(
             this.heightMapParams.fillValues({
-                [HeightMapParams.OFFSET_X] : offsetX,
-                [HeightMapParams.OFFSET_Z] : offsetZ
+                [HeightMapParams.OFFSET_X]: offsetX,
+                [HeightMapParams.OFFSET_Z]: offsetZ,
             })
-        )
+        );
 
         let grassBlock = BlockRegistries.GRASS;
         let dirtBlock = BlockRegistries.DIRT;
-        let matrix = new Matrix4;
 
         for (let z = 0; z < heightMap.length; z++) {
             const xses = heightMap[z];
             for (let x = 0; x < xses.length; x++) {
                 const y = xses[x];
-                
 
-
-                matrix.setPosition(x + 0.5 + offsetX, y + 0.5, z + 0.5 + offsetZ);
-                grassBlock.setMatrixAt(grassBlock.count, matrix);
-                grassBlock.count++;
-                this.add(grassBlock)
+                this.setBlock(
+                    x + 0.5 + offsetX,
+                    y + 0.5,
+                    z + offsetZ + 0.5,
+                    grassBlock
+                );
 
                 for (let yy = 0; yy < y - 1; yy++) {
-                    
-                    matrix.setPosition(x + 0.5 + offsetX, 0.5 + yy, z + 0.5 + offsetZ);
-                    dirtBlock.setMatrixAt(dirtBlock.count, matrix);
-                    dirtBlock.count++;
-                    this.add(dirtBlock);
-                    
+                    this.setBlock(
+                        x + 0.5 + offsetX,
+                        0.5 + yy,
+                        z + 0.5 + offsetZ,
+                        dirtBlock
+                    );
                 }
             }
-            
         }
-
-
     }
 }
