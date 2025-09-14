@@ -1,22 +1,23 @@
-import { World } from "oimo/src/Oimo";
 import {
     BoxGeometry,
+    GridHelper,
+    Group,
+    InstancedMesh,
     Matrix4,
-    Object3D,
+    Mesh,
+    MeshBasicMaterial,
     PerspectiveCamera,
     Scene,
+    TextureLoader,
+    Vector3,
     WebGLRenderer,
 } from "three";
-import GUI from "lil-gui";
-import GrassMeshGenerator from "./factories/blocks/GrassMaterialsFactory";
 import { OrbitControls, SimplexNoise } from "three/examples/jsm/Addons.js";
-import { degToRad } from "three/src/math/MathUtils.js";
-import SimpleGen from "./worldgen/SimpleGen";
-import GrassMaterialsFactory from "./factories/blocks/GrassMaterialsFactory";
-import ChunkDebugger from "./utils/ChunkDebugger";
 
 
 export default async function () {
+
+    // scene and camera
     const scene = new Scene();
     const camera = new PerspectiveCamera(
         75,
@@ -30,7 +31,7 @@ export default async function () {
     renderer.setAnimationLoop(animate);
     document.body.appendChild(renderer.domElement);
 
-    let chunkScale = 16;
+    let chunkScale = 1;
 
     camera.position.z = chunkScale + 100;
     camera.position.y = chunkScale / 2;
@@ -43,8 +44,59 @@ export default async function () {
         renderer.domElement.clientWidth / renderer.domElement.clientHeight;
     camera.updateProjectionMatrix();
 
-   
-    SimpleGen(scene, chunkScale);
+
+    // grid
+    let gridHelper = new GridHelper(16, 16);
+    scene.add(gridHelper);
+
+
+
+
+
+    // cube
+    let loader = new TextureLoader;
+
+    let matrix = new Matrix4;
+
+    let cubeGroup = new Group();
+    let cubeGeometery = new BoxGeometry(1, 1, 1);
+    let cubeMaterial = new MeshBasicMaterial({
+        map: await loader.loadAsync('/assets/images/textures/block/grass_block_side.png')
+    })
+
+    let maxCunt = 2;
+    
+
+    let cubeInstance = new InstancedMesh(cubeGeometery, cubeMaterial, maxCunt);
+    cubeInstance.count = 0;
+
+    matrix.setPosition(new Vector3(0.5, 0.5,0.5));
+    cubeInstance.setMatrixAt(0, matrix)
+    cubeInstance.count = 1;
+
+    matrix.setPosition(new Vector3(1.5, 1.5, 1.5));
+    cubeInstance.setMatrixAt(1, matrix);
+    cubeInstance.count = 2;
+
+
+    cubeGroup.add(cubeInstance);
+
+    scene.add(cubeGroup);
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    
 
     // ChunkDebugger(renderer, camera, scene);
 
