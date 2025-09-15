@@ -20,8 +20,6 @@ export default class Chunk extends Group {
      */
     blockPositions = {};
 
-    wasLogget = false;
-
     /**
      *
      * @param {HeightMapClass} heightMapClass
@@ -78,11 +76,41 @@ export default class Chunk extends Group {
         }
     }
 
+    generateMeshes() {
+        let positions = this.blockPositions.getData();
+
+        for (const x in positions) {
+            for (const y in positions[x]) {
+                for (const z in positions[x][y]) {
+                    let { instanceId, tags } = positions[x][y][z];
+                    if (this.isBlockObscured(x, y, z)) {
+                        continue;
+                    }
+                    this.setBlock(
+                        x,
+                        y,
+                        z,
+                        InstanceRegistry.getInstanceById(instanceId)
+                    );
+                }
+            }
+        }
+    }
+
+    generate(offsetX = 0, offsetZ = 0) {
+        this.blockPositions = new BlockPositions();
+
+        this.generateBlockPositions(offsetX, offsetZ);
+
+        this.blockPositions.storeData();
+        
+        this.generateMeshes();
+    }
+
     isBlockObscured(_x, _y, _z) {
         let x = Number(_x),
             y = Number(_y),
             z = Number(_z);
-
 
         const up = this.blockPositions.getBlockAt(x, y + 1, z);
         const down = this.blockPositions.getBlockAt(x, y - 1, z);
@@ -104,34 +132,5 @@ export default class Chunk extends Group {
         } else {
             return true;
         }
-    }
-
-    generateMeshes() {
-        let positions = this.blockPositions.getData();
-
-        for (const x in positions) {
-            for (const y in positions[x]) {
-                for (const z in positions[x][y]) {
-                    let { instanceId, tags } = positions[x][y][z];
-                    if (this.isBlockObscured(x, y, z)) {
-                        continue;
-                    };
-                    this.setBlock(
-                        x,
-                        y,
-                        z,
-                        InstanceRegistry.getInstanceById(instanceId)
-                    );
-                }
-            }
-        }
-    }
-
-    generate(offsetX = 0, offsetZ = 0) {
-        this.blockPositions = new BlockPositions();
-
-        this.generateBlockPositions(offsetX, offsetZ);
-
-        this.generateMeshes();
     }
 }

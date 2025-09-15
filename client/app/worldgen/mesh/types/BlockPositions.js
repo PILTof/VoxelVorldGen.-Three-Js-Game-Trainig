@@ -1,3 +1,5 @@
+import EventNames from "../../../../../server/api/EventNames.mjs";
+import Network from "../../../ship/Network/Network";
 import BlockData from "./BlockData";
 
 export default class BlockPositions {
@@ -16,12 +18,16 @@ export default class BlockPositions {
         return this.data;
     }
 
+    storeData() {
+        Network.Socket.emit(EventNames.CHUNK_CREATED, JSON.stringify(this.getData()));
+    }
+
     /**
-     * 
-     * @param {Number} x 
-     * @param {Number} y 
-     * @param {Number} z 
-     * @param {Number} instanceId 
+     *
+     * @param {Number} x
+     * @param {Number} y
+     * @param {Number} z
+     * @param {Number} instanceId
      */
     addBlockPosition(x, y, z, instanceId) {
         this.#setBlock(x, y, z, instanceId);
@@ -30,7 +36,7 @@ export default class BlockPositions {
     getBlockAt(_x, _y, _z) {
         let x = Number(_x),
             y = Number(_y),
-            z = Number(_z)
+            z = Number(_z);
 
         if (!this.data[x]) return null;
         if (!this.data[x][y]) return null;

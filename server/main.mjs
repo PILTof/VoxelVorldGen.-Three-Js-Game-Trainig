@@ -5,6 +5,7 @@ import path, { dirname, join } from "node:path";
 import { Server } from "socket.io";
 import cors from "cors";
 import * as fs from "node:fs";
+import EventNames from "./api/EventNames.mjs";
 
 const app = express();
 
@@ -23,7 +24,7 @@ const io = new Server(server, {
 io.on("connection", (socket) => {
     socket.emit("log", "connected");
     socket.on("chunk created", (req) => {
-        socket.emit("log", req);
+        socket.emit("log", `event sended ${EventNames.CHUNK_CREATED}`);
     });
 });
 

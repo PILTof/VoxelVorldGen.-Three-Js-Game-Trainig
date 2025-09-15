@@ -22,8 +22,8 @@ export default class World extends Group {
         this.clear();
 
         const heightMapClass = new HeightMapClass(
-            Math.random(),
-            Math.random(),
+            0.213245456,
+            0.213245456 * 2,
             1500
         );
 
@@ -31,9 +31,9 @@ export default class World extends Group {
             heightMapClass,
             new HeightMapParams().fillValues({
                 [HeightMapParams.CHUNK_SCALE]: 16,
-                [HeightMapParams.LOG_VALUE]: 50,
-                [HeightMapParams.HEIGHT_OFFSET_VALUE]: 8,
-                [HeightMapParams.HEIGHT_MULTIPLYER_VALUE]: 1,
+                [HeightMapParams.LOG_VALUE]: 40,
+                [HeightMapParams.HEIGHT_OFFSET_VALUE]: 12,
+                [HeightMapParams.HEIGHT_MULTIPLYER_VALUE]: 1.6,
             })
         );
         for (

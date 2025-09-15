@@ -6,8 +6,8 @@ export default class HeightMapClass {
     scale = 1500;
     height = this.scale;
     width = this.scale;
-    multiplyerPerl = 4;
-    multiplyerNoiseSelect = 10;
+    multiplyerPerl = 4.6;
+    multiplyerNoiseSelect = 2.1;
     /**
      * @type {Perlin}
      */
