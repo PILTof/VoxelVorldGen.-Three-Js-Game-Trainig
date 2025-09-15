@@ -2,6 +2,9 @@ import { BoxGeometry, MeshBasicMaterial, NearestFilter, TextureLoader } from "th
 import BlockInstance from "../../../ship/Abstract/BlockInstance";
 
 export default class GrassInstance extends BlockInstance {
+
+    instanceId = 0;
+
     loader = new TextureLoader();
     srcs = [
         "/assets/images/textures/block/grass_block_side.png",

@@ -1,8 +1,9 @@
 import { Group, Matrix4 } from "three";
-import BlockRegistries from "./InstanceRegistry";
+import BlockRegistries, { InstanceRegistry } from "./InstanceRegistry";
 import HeightMapClass from "../noise/HeightMapClass";
 import HeightMapParams from "../noise/HeightMapParams";
 import BlockInstance from "../../ship/Abstract/BlockInstance";
+import BlockPositions from "./types/BlockPositions";
 
 export default class Chunk extends Group {
     /**
@@ -13,6 +14,13 @@ export default class Chunk extends Group {
      * @type {HeightMapParams}
      */
     heightMapParams = {};
+
+    /**
+     * @type {BlockPositions}
+     */
+    blockPositions = {};
+
+    wasLogget = false;
 
     /**
      *
@@ -40,7 +48,7 @@ export default class Chunk extends Group {
         this.add(instance);
     }
 
-    generate(offsetX = 0, offsetZ = 0) {
+    generateBlockPositions(offsetX = 0, offsetZ = 0) {
         let heightMap = this.heightMapClass.generate(
             this.heightMapParams.fillValues({
                 [HeightMapParams.OFFSET_X]: offsetX,
@@ -52,23 +60,78 @@ export default class Chunk extends Group {
             const xses = heightMap[z];
             for (let x = 0; x < xses.length; x++) {
                 const y = xses[x];
-
-                this.setBlock(
-                    x + 0.5 + offsetX,
-                    y + 0.5,
-                    z + offsetZ + 0.5,
-                    BlockRegistries.GRASS
+                this.blockPositions.addBlockPosition(
+                    x + offsetX,
+                    y,
+                    z + offsetZ,
+                    BlockRegistries.GRASS.getInstanceId()
                 );
-
                 for (let yy = 0; yy < y - 1; yy++) {
-                    this.setBlock(
-                        x + 0.5 + offsetX,
-                        0.5 + yy,
-                        z + 0.5 + offsetZ,
-                        BlockRegistries.DIRT
+                    this.blockPositions.addBlockPosition(
+                        x + offsetX,
+                        yy,
+                        z + offsetZ,
+                        BlockRegistries.DIRT.getInstanceId()
                     );
                 }
             }
         }
+    }
+
+    isBlockObscured(_x, _y, _z) {
+        let x = Number(_x),
+            y = Number(_y),
+            z = Number(_z);
+
+
+        const up = this.blockPositions.getBlockAt(x, y + 1, z);
+        const down = this.blockPositions.getBlockAt(x, y - 1, z);
+        const left = this.blockPositions.getBlockAt(x + 1, y, z);
+        const right = this.blockPositions.getBlockAt(x - 1, y, z);
+        const forward = this.blockPositions.getBlockAt(x, y, z + 1);
+        const back = this.blockPositions.getBlockAt(x, y, z - 1);
+
+        // If any of the block's sides is exposed, it is not obscured
+        if (
+            up === null ||
+            down === null ||
+            left === null ||
+            right === null ||
+            forward === null ||
+            back === null
+        ) {
+            return false;
+        } else {
+            return true;
+        }
+    }
+
+    generateMeshes() {
+        let positions = this.blockPositions.getData();
+
+        for (const x in positions) {
+            for (const y in positions[x]) {
+                for (const z in positions[x][y]) {
+                    let { instanceId, tags } = positions[x][y][z];
+                    if (this.isBlockObscured(x, y, z)) {
+                        continue;
+                    };
+                    this.setBlock(
+                        x,
+                        y,
+                        z,
+                        InstanceRegistry.getInstanceById(instanceId)
+                    );
+                }
+            }
+        }
+    }
+
+    generate(offsetX = 0, offsetZ = 0) {
+        this.blockPositions = new BlockPositions();
+
+        this.generateBlockPositions(offsetX, offsetZ);
+
+        this.generateMeshes();
     }
 }

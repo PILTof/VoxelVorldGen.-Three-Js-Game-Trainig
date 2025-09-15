@@ -51,4 +51,9 @@ export default class BlockInstance extends InstancedMesh {
         this.position.z = 0;
         return this;
     }
+
+    getInstanceId()
+    {
+        return this.instanceId;
+    }
 }

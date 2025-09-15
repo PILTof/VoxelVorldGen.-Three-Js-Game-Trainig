@@ -2,6 +2,7 @@ import { MeshBasicMaterial, TextureLoader } from "three";
 import BlockInstance from "../../../ship/Abstract/BlockInstance";
 
 export default class DirtInstance extends BlockInstance {
+    instanceId = 1;
     loader = new TextureLoader();
     srcs = [
         "/assets/images/textures/block/dirt.png",
