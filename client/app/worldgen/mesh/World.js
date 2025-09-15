@@ -1,9 +1,9 @@
-import { Group, Matrix4, Scene } from "three";
+import { Group } from "three";
 import WorldParams from "./WorldParams";
 import Chunk from "./Chunk";
 import HeightMapClass from "../noise/HeightMapClass";
 import HeightMapParams from "../noise/HeightMapParams";
-import BlockRegistries from "./InstanceRegistry";
+
 
 export default class World extends Group {
     /**

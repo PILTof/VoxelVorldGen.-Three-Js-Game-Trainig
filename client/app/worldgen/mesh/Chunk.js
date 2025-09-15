@@ -48,9 +48,6 @@ export default class Chunk extends Group {
             })
         );
 
-        let grassBlock = BlockRegistries.GRASS;
-        let dirtBlock = BlockRegistries.DIRT;
-
         for (let z = 0; z < heightMap.length; z++) {
             const xses = heightMap[z];
             for (let x = 0; x < xses.length; x++) {
@@ -60,7 +57,7 @@ export default class Chunk extends Group {
                     x + 0.5 + offsetX,
                     y + 0.5,
                     z + offsetZ + 0.5,
-                    grassBlock
+                    BlockRegistries.GRASS
                 );
 
                 for (let yy = 0; yy < y - 1; yy++) {
@@ -68,7 +65,7 @@ export default class Chunk extends Group {
                         x + 0.5 + offsetX,
                         0.5 + yy,
                         z + 0.5 + offsetZ,
-                        dirtBlock
+                        BlockRegistries.DIRT
                     );
                 }
             }

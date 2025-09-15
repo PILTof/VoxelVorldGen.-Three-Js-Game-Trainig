@@ -16,8 +16,6 @@ import {
 import { OrbitControls, SimplexNoise } from "three/examples/jsm/Addons.js";
 import World from "./worldgen/mesh/World";
 import WorldParams from "./worldgen/mesh/WorldParams";
-import BlockRegistries from "./worldgen/mesh/InstanceRegistry";
-import GUI from "lil-gui";
 
 export default async function () {
     // scene and camera
@@ -63,35 +61,7 @@ export default async function () {
     world.generate();
 
     scene.add(world);
-    // cube
-    // let loader = new TextureLoader;
-
-    // let matrix = new Matrix4;
-
-    // let cubeGroup = new Group();
-    // let cubeGeometery = new BoxGeometry(1, 1, 1);
-    // let cubeMaterial = new MeshBasicMaterial({
-    //     map: await loader.loadAsync('/assets/images/textures/block/grass_block_side.png')
-    // })
-
-    // let maxCunt = 2;
-
-    // let cubeInstance = new InstancedMesh(cubeGeometery, cubeMaterial, maxCunt);
-    // cubeInstance.count = 0;
-
-    // matrix.setPosition(new Vector3(0.5, 0.5,0.5));
-    // cubeInstance.setMatrixAt(0, matrix)
-    // cubeInstance.count = 1;
-
-    // matrix.setPosition(new Vector3(1.5, 1.5, 1.5));
-    // cubeInstance.setMatrixAt(1, matrix);
-    // cubeInstance.count = 2;
-
-    // cubeGroup.add(cubeInstance);
-
-    // scene.add(cubeGroup);
-
-    // ChunkDebugger(renderer, camera, scene);
+    
 
     function animate() {
         //   cube.rotation.x += 0.01;
