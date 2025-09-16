@@ -44,7 +44,6 @@ export default class Chunk extends Group {
         instance.setMatrixAt(instance.count, matrix);
         instance.count++;
         instance.instanceMatrix.needsUpdate = true;
-        this.add(instance);
     }
 
     generateTerrainBlockPositions(offsetX = 0, offsetZ = 0) {
@@ -80,6 +79,8 @@ export default class Chunk extends Group {
     generateMeshes() {
         let positions = this.blockPositions.getData();
 
+        let instances = {};
+
         for (const x in positions) {
             for (const y in positions[x]) {
                 for (const z in positions[x][y]) {
@@ -87,6 +88,7 @@ export default class Chunk extends Group {
                     if (this.isBlockObscured(x, y, z)) {
                         continue;
                     }
+                    instances[instanceId] = InstanceRegistry.getInstanceById(instanceId);
                     this.setBlock(
                         x,
                         y,
@@ -96,6 +98,15 @@ export default class Chunk extends Group {
                 }
             }
         }
+
+        for (const key in instances) {
+            /**
+             * @type {BlockInstance}
+             */
+            const instance = instances[key];
+            this.add(instance);
+        }
+        
     }
 
     generate(offsetX = 0, offsetZ = 0) {
