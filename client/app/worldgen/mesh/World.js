@@ -45,7 +45,7 @@ export default class World extends Group {
                 z < this.params.getValue(WorldParams.GEN_RADIUS);
                 z++
             ) {
-                chunks.generate(x * 16, z * 16)
+                requestIdleCallback(() => chunks.generate(x * 16, z * 16), {timeout: 1000})
             }
         }
         this.add(chunks);

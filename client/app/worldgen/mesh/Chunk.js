@@ -1,4 +1,4 @@
-import { Group, Matrix4 } from "three";
+import { Group, InstancedMesh, Matrix4 } from "three";
 import BlockRegistries, { InstanceRegistry } from "./InstanceRegistry";
 import HeightMapClass from "../noise/HeightMapClass";
 import HeightMapParams from "../noise/HeightMapParams";
@@ -36,13 +36,14 @@ export default class Chunk extends Group {
      * @param {*} x
      * @param {*} y
      * @param {*} z
-     * @param {typeof BlockInstance} instance
+     * @param {BlockInstance} instance
      */
     setBlock(x, y, z, instance) {
         let matrix = new Matrix4();
         matrix.setPosition(x, y, z);
         instance.setMatrixAt(instance.count, matrix);
         instance.count++;
+        instance.instanceMatrix.needsUpdate = true;
         this.add(instance);
     }
 
