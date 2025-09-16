@@ -1,19 +1,12 @@
-import { World } from "oimo/src/Oimo";
 import {
-    BoxGeometry,
-    Matrix4,
-    Object3D,
+    AxesHelper,
+    GridHelper,
     PerspectiveCamera,
     Scene,
     WebGLRenderer,
 } from "three";
-import GUI from "lil-gui";
-import GrassMeshGenerator from "./factories/blocks/GrassMaterialsFactory";
 import { OrbitControls, SimplexNoise } from "three/examples/jsm/Addons.js";
 import { degToRad } from "three/src/math/MathUtils.js";
-import SimpleGen from "./worldgen/SimpleGen";
-import GrassMaterialsFactory from "./factories/blocks/GrassMaterialsFactory";
-import ChunkDebugger from "./utils/ChunkDebugger";
 
 
 export default async function () {
@@ -30,24 +23,30 @@ export default async function () {
     renderer.setAnimationLoop(animate);
     document.body.appendChild(renderer.domElement);
 
-    let chunkScale = 16;
+    let chunkScale = 4;
 
-    camera.position.z = chunkScale + 100;
+    camera.position.z = 0
     camera.position.y = chunkScale / 2;
-    camera.position.x = chunkScale / 2;
+    camera.position.x = 0
+    camera.rotation.x -= degToRad(45);
     const controls = new OrbitControls(camera, renderer.domElement);
-    controls.target.set(chunkScale / 2, 5, chunkScale / 2);
+    controls.target.set(0, 0, 0);
     controls.update();
 
     camera.aspect =
         renderer.domElement.clientWidth / renderer.domElement.clientHeight;
     camera.updateProjectionMatrix();
 
+
+    const gridHelper = new GridHelper(50, 50);
+    scene.add(gridHelper);
+
+    const axesHelper = new AxesHelper(50);
+    axesHelper.setColors('red', 'yellow', 'lime');
+    scene.add(axesHelper);
+
+
    
-    SimpleGen(scene, chunkScale);
-
-    // ChunkDebugger(renderer, camera, scene);
-
     function animate() {
         //   cube.rotation.x += 0.01;
         //   cube.rotation.y += 0.01;
