@@ -32,10 +32,10 @@ export default async function () {
     renderer.setAnimationLoop(animate);
     document.body.appendChild(renderer.domElement);
 
-    let chunkScale = 1;
+    let chunkScale = 16;
 
     camera.position.z = chunkScale + 100;
-    camera.position.y = chunkScale / 2;
+    camera.position.y = chunkScale / 2 + 50;
     camera.position.x = chunkScale / 2;
     const controls = new OrbitControls(camera, renderer.domElement);
     controls.target.set(chunkScale / 2, 5, chunkScale / 2);
@@ -54,14 +54,12 @@ export default async function () {
     scene.add(axesHelper);
 
     let worldParams = new WorldParams().fillValues({
-        [WorldParams.GEN_RADIUS]: 5,
+        [WorldParams.GEN_RADIUS]: 6,
     });
 
     let world = new World(worldParams);
     world.generate();
-
-    scene.add(world);
-    
+    scene.add(world)
 
     function animate() {
 

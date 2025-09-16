@@ -4,7 +4,6 @@ import Chunk from "./Chunk";
 import HeightMapClass from "../noise/HeightMapClass";
 import HeightMapParams from "../noise/HeightMapParams";
 
-
 export default class World extends Group {
     /**
      * @type {WorldParams}
@@ -27,7 +26,7 @@ export default class World extends Group {
             1500
         );
 
-        let chunk = new Chunk(
+        let chunks = new Chunk(
             heightMapClass,
             new HeightMapParams().fillValues({
                 [HeightMapParams.CHUNK_SCALE]: 16,
@@ -46,9 +45,9 @@ export default class World extends Group {
                 z < this.params.getValue(WorldParams.GEN_RADIUS);
                 z++
             ) {
-                chunk.generate(x * 16, z * 16);
+                chunks.generate(x * 16, z * 16)
             }
         }
-        this.add(chunk);
+        this.add(chunks);
     }
 }

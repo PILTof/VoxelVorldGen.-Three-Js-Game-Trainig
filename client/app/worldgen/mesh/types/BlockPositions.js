@@ -8,10 +8,18 @@ export default class BlockPositions {
      */
     data = [];
 
-    #setBlock(x, y, z, instanceId, tags = []) {
+    #setBlock(x, y, z, instanceId, tags = [], index = null) {
         if (!this.data[x]) this.data[x] = [];
         if (!this.data[x][y]) this.data[x][y] = [];
         this.data[x][y][z] = new BlockData(instanceId, tags).getObject();
+        if (index !== null) {
+            this.data[x][y][z].setIndex(index);
+        }
+    }
+
+    #setBlockIndex(x, y, z, index)
+    {
+
     }
 
     getData() {
@@ -29,8 +37,31 @@ export default class BlockPositions {
      * @param {Number} z
      * @param {Number} instanceId
      */
-    addBlockPosition(x, y, z, instanceId) {
-        this.#setBlock(x, y, z, instanceId);
+    addBlockPosition(x, y, z, instanceId, tags = [], index) {
+        this.#setBlock(x, y, z, instanceId, tags, index);
+    }
+
+    setBlockIndex(x, y, z, index)
+    {
+        this.#setBlockIndex(x, y, z, index);
+    }
+
+    setIndexCoordinaes(index, x, y, z)
+    {
+        let res = this.data.filter(yses => yses?.filter(zses => zses?.filter(blockData => blockData.index === index).length).length);
+        if (res.length) {
+
+            let _x = Object.keys(res).at(0)
+            let _y = Object.keys(res[_x]).at(0);
+            let _z = Object.keys(res[_x][_y]).at(0);
+
+            let block = res[_x][_y][_z];
+
+            
+            this.data[x][y][z] = block;
+
+        }
+
     }
 
     getBlockAt(_x, _y, _z) {

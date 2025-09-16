@@ -6,6 +6,7 @@ export default class BlockData {
     #data = {
         instanceId: 0,
         tags: [],
+        index: 0
     };
 
     /**
@@ -20,5 +21,11 @@ export default class BlockData {
 
     getObject() {
         return this.#data;
+    }
+
+    setIndex(value)
+    {
+        value = Number(value);
+        this.#data.index = value; 
     }
 }

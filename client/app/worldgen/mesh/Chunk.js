@@ -46,7 +46,7 @@ export default class Chunk extends Group {
         this.add(instance);
     }
 
-    generateBlockPositions(offsetX = 0, offsetZ = 0) {
+    generateTerrainBlockPositions(offsetX = 0, offsetZ = 0) {
         let heightMap = this.heightMapClass.generate(
             this.heightMapParams.fillValues({
                 [HeightMapParams.OFFSET_X]: offsetX,
@@ -64,7 +64,7 @@ export default class Chunk extends Group {
                     z + offsetZ,
                     BlockRegistries.GRASS.getInstanceId()
                 );
-                for (let yy = 0; yy < y - 1; yy++) {
+                for (let yy = -20; yy < y - 1; yy++) {
                     this.blockPositions.addBlockPosition(
                         x + offsetX,
                         yy,
@@ -100,7 +100,7 @@ export default class Chunk extends Group {
     generate(offsetX = 0, offsetZ = 0) {
         this.blockPositions = new BlockPositions();
 
-        this.generateBlockPositions(offsetX, offsetZ);
+        this.generateTerrainBlockPositions(offsetX, offsetZ);
 
         this.blockPositions.storeData();
         
