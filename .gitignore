@@ -141,4 +141,5 @@ vite.config.ts.timestamp-*
 server/generated/**
 
 package-lock.json
+node_modules/
 .vscode
