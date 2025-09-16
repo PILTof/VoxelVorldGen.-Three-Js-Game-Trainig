@@ -55,7 +55,7 @@ export default async function () {
     let instance = new InstancedMesh(
         new BoxGeometry(1, 1, 1),
         new MeshBasicMaterial({ color: "green" }),
-        3
+        10 * 10
     );
     instance.count = 1;
 
@@ -64,7 +64,6 @@ export default async function () {
 
     matrix.setPosition(2, 0, 0);
     instance.setMatrixAt(instance.count++, matrix);
-    instance.instanceMatrix.setUsage(DynamicDrawUsage)
     scene.add(instance);
 
     /** remove 1 0 0 */
@@ -85,6 +84,13 @@ export default async function () {
                 instance.computeBoundingSphere();
 
 
+        } else if (event.key === "[") {
+            // set block operatoin alg
+            matrix.setPosition(new Vector3(1, 1, 0));
+            instance.setMatrixAt(instance.count++, matrix);
+
+            instance.instanceMatrix.needsUpdate = true;
+            instance.computeBoundingSphere();
         }
     });
 
