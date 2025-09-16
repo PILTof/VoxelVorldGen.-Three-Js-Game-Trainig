@@ -3,9 +3,11 @@ import {
     GridHelper,
     PerspectiveCamera,
     Scene,
+    Vector3,
     WebGLRenderer,
 } from "three";
 import { OrbitControls, SimplexNoise } from "three/examples/jsm/Addons.js";
+import { degToRad } from "three/src/math/MathUtils.js";
 
 
 export default async function () {
@@ -24,10 +26,12 @@ export default async function () {
 
     let chunkScale = 4;
 
-    camera.position.z = 0
-    camera.position.y = chunkScale / 2;
     camera.position.x = 0
+    camera.position.y = chunkScale / 2;
+    camera.position.z = 1
+    
     const controls = new OrbitControls(camera, renderer.domElement);
+    
     controls.target.set(0, 0, 0);
     controls.update();
 
