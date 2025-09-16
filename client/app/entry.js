@@ -16,16 +16,12 @@ import {
 import { OrbitControls, SimplexNoise } from "three/examples/jsm/Addons.js";
 import World from "./worldgen/mesh/World";
 import WorldParams from "./worldgen/mesh/WorldParams";
+import PlayerCamera from "./worldgen/camera/PlayerCamera";
 
 export default async function () {
     // scene and camera
     const scene = new Scene();
-    const camera = new PerspectiveCamera(
-        75,
-        window.innerWidth / window.innerHeight,
-        0.1,
-        1000
-    );
+    const camera = PlayerCamera.getInstance();
 
     const renderer = new WebGLRenderer();
     renderer.setSize(window.innerWidth, window.innerHeight);
