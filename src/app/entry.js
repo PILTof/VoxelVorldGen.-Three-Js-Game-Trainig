@@ -1,10 +1,12 @@
 import {
     AxesHelper,
     BoxGeometry,
+    DynamicDrawUsage,
     GridHelper,
     InstancedMesh,
     Matrix4,
     MeshBasicMaterial,
+    Object3D,
     PerspectiveCamera,
     Scene,
     Vector3,
@@ -62,20 +64,34 @@ export default async function () {
 
     matrix.setPosition(2, 0, 0);
     instance.setMatrixAt(instance.count++, matrix);
-
+    instance.instanceMatrix.setUsage(DynamicDrawUsage)
     scene.add(instance);
 
+    /** remove 1 0 0 */
     window.addEventListener("keyup", (event) => {
         if (event.key === "]") {
-            
-            console.log(mesh)
+                // delete block operation alg
+                const lastMatrix = new Matrix4;
+                instance.getMatrixAt(instance.count - 1, lastMatrix);
+
+                const v = new Vector3;
+                v.applyMatrix4(lastMatrix);
+
+                instance.setMatrixAt(1, lastMatrix);
+
+                instance.count--;
+
+                instance.instanceMatrix.needsUpdate = true;
+                instance.computeBoundingSphere();
+
+
         }
     });
 
     function animate() {
         //   cube.rotation.x += 0.01;
         //   cube.rotation.y += 0.01;
-
+        instance.instanceMatrix.needsUpdate = true;
         renderer.render(scene, camera);
     }
 }
