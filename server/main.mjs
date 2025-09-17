@@ -5,6 +5,7 @@ import path, { dirname, join } from "node:path";
 import { Server } from "socket.io";
 import cors from "cors";
 import * as fs from "node:fs";
+import EventNames from "./api/EventNames.mjs";
 
 const app = express();
 
@@ -23,22 +24,7 @@ const io = new Server(server, {
 io.on("connection", (socket) => {
     socket.emit("log", "connected");
     socket.on("chunk created", (req) => {
-        socket.emit("log", req);
-        if (!req.object) {
-            socket.emit("error", "Chunk data is empty");
-            return;
-        }
-        socket.emit("log", "Object NAME: " + req.object.name);
-
-        let result = fs.writeFile(
-            __dirname + "/generated/world/chunks/" + req.object.name + ".json",
-            JSON.stringify(req),
-            {},
-            (err) => {
-                if (err) socket.emit("error", err);
-                socket.emit("log", "File saved");
-            }
-        );
+        socket.emit("log", `event sended ${EventNames.CHUNK_CREATED}`);
     });
 });
 
