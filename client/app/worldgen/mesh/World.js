@@ -17,6 +17,7 @@ export default class World extends Group {
 
     saveData() {}
 
+    // FIXME: если генерация происходит аснхронно, т.к. когда пользователь видит генерацию, тогда ЛОМАЕТСЯ ОТОБРАЖЕНИЕ ИНСТАНСОВ
     generate() {
         this.clear();
 
