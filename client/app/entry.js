@@ -18,6 +18,12 @@ import World from "./worldgen/mesh/World";
 import WorldParams from "./worldgen/mesh/WorldParams";
 import PlayerCamera from "./worldgen/camera/PlayerCamera";
 
+// TODO: игрок
+// TODO: генерация мира ОТ игрока
+// TODO: сохранение данных мира на сервере
+// TODO: формат .bin для сохранения данных на сервере, чтение формата
+
+
 export default async function () {
     // scene and camera
     const scene = new Scene();
